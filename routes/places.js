@@ -17,6 +17,7 @@ const validatePlace = (req, res, next) => {
   }
 };
 
+//places
 router.get(
   "/",
   wrapAsync(async (req, res) => {
@@ -25,7 +26,7 @@ router.get(
   })
 );
 
-// create places
+// create place and added place
 router.get("/create", (req, res) => {
   res.render("places/create");
 });
@@ -40,7 +41,7 @@ router.post(
     res.redirect("/places");
   })
 );
-// route edit and update place
+// edit and update place
 router.get(
   "/:id/edit",
   wrapAsync(async (req, res) => {
@@ -48,7 +49,7 @@ router.get(
     res.render("places/edit", { place });
   })
 );
-// route find places by id
+// place show
 router.get(
   "/:id",
   wrapAsync(async (req, res) => {
@@ -57,6 +58,7 @@ router.get(
   })
 );
 
+// update place
 router.put(
   "/:id",
   validatePlace,
@@ -69,7 +71,7 @@ router.put(
   })
 );
 
-// route delete place
+// delete place
 router.delete(
   "/:id",
   wrapAsync(async (req, res) => {
