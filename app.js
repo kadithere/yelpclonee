@@ -14,8 +14,8 @@ const Place = require("./models/place");
 const Review = require("./models/review");
 
 // schemas
-
 const { placeShema } = require("./schemas/places");
+const { reviewShema } = require("./schemas/review");
 
 //connect to mongodb
 mongoose
@@ -39,6 +39,15 @@ app.use(methodOverride("_method"));
 // impelemantasi fungsi validate place pada method update(put) dan post
 const validatePlace = (req, res, next) => {
   const { error } = placeShema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(",");
+    return next(new ErrorHandler(msg, 400));
+  } else {
+    next();
+  }
+};
+const validateReview = (req, res, next) => {
+  const { error } = reviewShema.validate(req.body);
   if (error) {
     const msg = error.details.map((el) => el.message).join(",");
     return next(new ErrorHandler(msg, 400));
@@ -83,7 +92,7 @@ app.post(
 app.get(
   "/places/:id",
   wrapAsync(async (req, res) => {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id).populate("reviews");
     res.render("places/show", { place });
   })
 );
@@ -108,9 +117,10 @@ app.put(
   })
 );
 
-// add post reviews.
+// add post review.
 app.post(
   "/places/:id/reviews",
+  validateReview,
   wrapAsync(async (req, res) => {
     const review = new Review(req.body.review);
     const place = await Place.findById(req.params.id);
@@ -118,6 +128,18 @@ app.post(
     await review.save();
     await place.save();
     res.redirect(`/places/${req.params.id}`);
+  })
+);
+// delete review
+app.delete(
+  "/places/:place_id/reviews/:review_id",
+  wrapAsync(async (req, res) => {
+    const { place_id, review_id } = req.params;
+    await Place.findByIdAndUpdate(place_id, {
+      $pull: { reviews: review_id },
+    });
+    await Place.findByIdAndDelete(review_id);
+    res.redirect(`/places/${req.params.place_id}`);
   })
 );
 
