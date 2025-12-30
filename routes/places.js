@@ -52,6 +52,10 @@ router.get(
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const place = await Place.findById(req.params.id);
+    if (!place) {
+      req.flash("error_msg", "Place not found");
+      return res.redirect("/places");
+    }
     res.render("places/edit", { place });
   })
 );
@@ -61,6 +65,10 @@ router.get(
   isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const place = await Place.findById(req.params.id).populate("reviews");
+    if (!place) {
+      req.flash("error_msg", "Place not found");
+      return res.redirect("/places");
+    }
     res.render("places/show", { place });
   })
 );

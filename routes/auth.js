@@ -9,25 +9,41 @@ router.get("/register", (req, res) => {
 });
 
 // membuat user register
+// router.post(
+//   "/register",
+//   WrapAsync(async (req, res) => {
+//     try {
+//       const { email, username, password } = req.body;
+//       const user = new User({ email, username });
+//       const registerUser = await User.register(user, password);
+//       req.login(registerUser, (err) => {
+//         if (err) return next(err);
+//         req.flash("success_msg", "You are registered and can logged in");
+//         res.redirect("/places");
+//       });
+//     } catch (error) {
+//       req.flash("error_msg", error.message);
+//       res.redirect("/register");
+//     }
+//   })
+// );
+
 router.post(
   "/register",
-  WrapAsync(async (req, res) => {
-    try {
-      const { email, username, password } = req.body;
-      const user = new User({ email, username });
-      const registerUser = await User.register(user, password);
-      req.login(registerUser, (err) => {
-        if (err) return next(err);
-        req.flash("success_msg", "You are registered and can logged in");
-        res.redirect("/places");
-      });
-    } catch (error) {
-      req.flash("error_msg", error.message);
-      res.redirect("/register");
-    }
+  WrapAsync(async (req, res, next) => {
+    const { email, username, password } = req.body;
+    const user = new User({ email, username });
+    const registerUser = await User.register(user, password);
+
+    req.login(registerUser, (err) => {
+      if (err) return next(err);
+      req.flash("success_msg", "You are registered and logged in");
+      res.redirect("/places");
+    });
   })
 );
 
+// user login
 router.get("/login", (req, res) => {
   res.render("auth/login");
 });
@@ -51,11 +67,19 @@ router.post(
 
 // membuat routes logout
 // jika user logout redirect ke halaman login
-router.post("/logout", (req, res) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
+// router.post("/logout", (req, res) => {
+//   req.logout(function (err) {
+//     if (err) {
+//       return next(err);
+//     }
+//     req.flash("success_msg", "You are logged out");
+//     res.redirect("/login");
+//   });
+// });
+
+router.post("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
     req.flash("success_msg", "You are logged out");
     res.redirect("/login");
   });

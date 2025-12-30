@@ -74,7 +74,15 @@ app.use((req, res, next) => {
   next(new ErrorHandler("Page Not Found", 404)); // ganti nama file errorhandler jadi kapital
 });
 
+// app.use((err, req, res, next) => {
+//   const { statusCode = 500 } = err;
+//   if (!err.message) err.message = "Oh no, something went wrong";
+//   res.status(statusCode).render("error", { err });
+// });
 app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
   const { statusCode = 500 } = err;
   if (!err.message) err.message = "Oh no, something went wrong";
   res.status(statusCode).render("error", { err });
