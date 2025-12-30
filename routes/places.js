@@ -4,6 +4,8 @@ const { placeShema } = require("../schemas/places");
 const wrapAsync = require("../utils/WrapAsync");
 const ErrorHandler = require("../utils/ErrorHandler");
 
+const isValidObjectId = require("../middlewares/isValidObjectId");
+const isAuth = require("../middlewares/isAuth");
 const router = express.Router();
 
 // middleware
@@ -27,13 +29,15 @@ router.get(
 );
 
 // create place and added place
-router.get("/create", (req, res) => {
+router.get("/create", isAuth, (req, res) => {
   res.render("places/create");
 });
 
 router.post(
   "/",
+  isAuth,
   validatePlace,
+
   wrapAsync(async (req, res, next) => {
     const place = new Place(req.body.place);
     await place.save();
@@ -44,6 +48,8 @@ router.post(
 // edit and update place
 router.get(
   "/:id/edit",
+  isAuth,
+  isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const place = await Place.findById(req.params.id);
     res.render("places/edit", { place });
@@ -52,6 +58,7 @@ router.get(
 // place show
 router.get(
   "/:id",
+  isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     const place = await Place.findById(req.params.id).populate("reviews");
     res.render("places/show", { place });
@@ -61,6 +68,8 @@ router.get(
 // update place
 router.put(
   "/:id",
+  isAuth,
+  isValidObjectId("/places"),
   validatePlace,
   wrapAsync(async (req, res) => {
     await Place.findByIdAndUpdate(req.params.id, {
@@ -74,6 +83,8 @@ router.put(
 // delete place
 router.delete(
   "/:id",
+  isAuth,
+  isValidObjectId("/places"),
   wrapAsync(async (req, res) => {
     await Place.findByIdAndDelete(req.params.id);
     req.flash("success_msg", "Place deleted seccessfully");
