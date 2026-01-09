@@ -6,7 +6,6 @@ module.exports.placeShema = Joi.object({
     location: Joi.string().required(),
     description: Joi.string().required(),
     price: Joi.number().required(),
-    image: Joi.string().required(),
   }).required(),
 });
 
